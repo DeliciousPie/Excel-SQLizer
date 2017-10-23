@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excel-SQLizer.WFP", "Excel-SQLizer.WFP\Excel-SQLizer.WFP.csproj", "{E60D45C5-B0EA-441D-AB3F-26B04B75125D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excel-SQLizer.Model", "Excel-SQLizer.Model\Excel-SQLizer.Model.csproj", "{EDE9C3F3-92E3-434C-8728-FBFA9E7B7FD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E60D45C5-B0EA-441D-AB3F-26B04B75125D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E60D45C5-B0EA-441D-AB3F-26B04B75125D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E60D45C5-B0EA-441D-AB3F-26B04B75125D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDE9C3F3-92E3-434C-8728-FBFA9E7B7FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDE9C3F3-92E3-434C-8728-FBFA9E7B7FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDE9C3F3-92E3-434C-8728-FBFA9E7B7FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDE9C3F3-92E3-434C-8728-FBFA9E7B7FD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
