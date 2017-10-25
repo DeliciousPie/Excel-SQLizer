@@ -13,8 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
-using Excel_SQLizer.Model;
-using Excel_SQLizer.Model.Exceptions;
+using Excel_SQLizer;
+using Excel_SQLizer.Exceptions;
 
 namespace Excel_SQLizer.WFP
 {

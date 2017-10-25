@@ -113,13 +113,13 @@
     <Resource Include="example.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Excel-SQLizer.Model\Excel-SQLizer.Model.csproj">
-      <Project>{ede9c3f3-92e3-434c-8728-fbfa9e7b7fd2}</Project>
-      <Name>Excel-SQLizer.Model</Name>
-    </ProjectReference>
+    <Resource Include="sqlizer_icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="sqlizer_icon.ico" />
+    <ProjectReference Include="..\Excel_SQLizer\Excel_SQLizer.csproj">
+      <Project>{a041dd3d-3b65-45c4-aad5-6d84eebaf488}</Project>
+      <Name>Excel_SQLizer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
