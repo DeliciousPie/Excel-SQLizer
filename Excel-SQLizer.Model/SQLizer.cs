@@ -47,18 +47,27 @@ namespace Excel_SQLizer.Model
                             while (reader.Read())
                             {
                                 string values = "";
-                                //if value is string wrap it in ' ' quotes, else just add it.
                                 for (int i = 0; i < reader.FieldCount; i++)
                                 {
-                                    var fieldType = reader.GetFieldType(i).Name.ToLower();
-                                    if (fieldType.ToString().Equals("string"))
+                                    //For null fields use the NULL keyword
+                                    if (reader.IsDBNull(i))
                                     {
-                                        values += "'" + reader.GetString(i) + "'";
+                                        values += "NULL";
                                     }
                                     else
                                     {
-                                        values += reader.GetValue(i);
+                                        //if value is string wrap it in ' ' quotes, else just add it.
+                                        var fieldType = reader.GetFieldType(i).Name.ToLower();
+                                        if (fieldType.ToString().Equals("string"))
+                                        {
+                                            values += "'" + reader.GetString(i) + "'";
+                                        }
+                                        else
+                                        {
+                                            values += reader.GetValue(i);
+                                        }
                                     }
+
                                     values += ", ";
                                 }
                                 values = values.Trim().TrimEnd(',');
