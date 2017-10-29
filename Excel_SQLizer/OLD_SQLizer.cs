@@ -1,36 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Excel_SQLizer.Exceptions;
 using ExcelDataReader;
+using System.Collections.Generic;
 
 namespace Excel_SQLizer
 {
-    public abstract class BaseSQLizer
-    {
-        protected string _filePath;
-        protected string _outPath;
-        protected List<BaseStatementGenerator> _statementGenerators;
+    public class OLD_SQLizer
+    { 
+        private string _filePath;
+        private string _outPath;
+        private List<OLD_InsertStatementGenerator> _isgList;
 
-        /// <summary>
-        /// Initializes all SQLizer settings.
-        /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="outPath">The out path.</param>
-        protected void Initialize(string filePath, string outPath = null)
+        public OLD_SQLizer (string filePath)
         {
             _filePath = filePath;
-            //Sets an out path for the file if passed in, otherwise default to same path as the excel file
-            _outPath = outPath ?? Path.GetDirectoryName(filePath);
-            _statementGenerators = new List<BaseStatementGenerator>();
+            _outPath  = Path.GetDirectoryName(filePath);
+            _isgList = new List<OLD_InsertStatementGenerator>();
         }
-
-        /// <summary>
-        /// Creates a generator.
-        /// </summary>
-        /// <returns></returns>
-        protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
 
         public void GenerateInsertScript()
         {
@@ -55,7 +42,7 @@ namespace Excel_SQLizer
                             //removing trailing comma and space
                             columns = columns.Trim().TrimEnd(',');
 
-                            BaseStatementGenerator generator = CreateGenerator(tableName, columns);
+                            OLD_InsertStatementGenerator isg = new OLD_InsertStatementGenerator(tableName, columns);
 
                             while (reader.Read())
                             {
@@ -84,9 +71,9 @@ namespace Excel_SQLizer
                                     values += ", ";
                                 }
                                 values = values.Trim().TrimEnd(',');
-                                generator.AddStatement(values);
+                                isg.AddInsertStatement(values);
                             }
-                            _statementGenerators.Add(generator);
+                            _isgList.Add(isg);
 
                         } while (reader.NextResult());
 
@@ -106,14 +93,11 @@ namespace Excel_SQLizer
 
         }
 
-        /// <summary>
-        /// Writes the SQL file.
-        /// </summary>
-        internal void WriteSqlFile()
+        private void WriteSqlFile()
         {
-            foreach (BaseStatementGenerator generator in _statementGenerators)
+            foreach (OLD_InsertStatementGenerator isg in _isgList)
             {
-                string filePath = _outPath + @"\" + generator.GetFileName();
+                string filePath = _outPath + @"\" + isg.TableName.ToUpper() + "_INSERT_STATEMENTS.sql";
                 //if file exists, delete it
                 if (File.Exists(filePath))
                 {
@@ -122,7 +106,7 @@ namespace Excel_SQLizer
                 //create a file to write to
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
-                    foreach (string insertStatement in generator.GetStatements())
+                    foreach (string insertStatement in isg.InsertStatements)
                     {
                         sw.WriteLine(insertStatement);
                     }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Excel_SQLizer
 {
-    internal class InsertStatementGenerator
+    internal class OLD_InsertStatementGenerator
     {
 
         /// <summary>
@@ -32,12 +32,12 @@ namespace Excel_SQLizer
         /// </value>
         public string TableName { get; }
 
-        public InsertStatementGenerator()
+        public OLD_InsertStatementGenerator()
         {
             InsertStatements = new List<string>();
         }
 
-        public InsertStatementGenerator(string tableName, string columns) : this()
+        public OLD_InsertStatementGenerator(string tableName, string columns) : this()
         {
             TableName       = tableName;
             //create the InsertIntoTable statement

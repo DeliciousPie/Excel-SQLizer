@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using cntrl = System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -23,12 +23,22 @@ namespace Excel_SQLizer.WFP
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        //There is probably a better WPF pattern than this
+        private bool _insertMode;
+        private bool _updateMode;
+        private bool _deleteMode;
+
         public MainWindow()
         {
+            //default insertMode
+            _insertMode = true;
+            _updateMode = false;
+            _deleteMode = false;
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void SelectFileClick(object sender, RoutedEventArgs e)
         {
             var fileDialog = new System.Windows.Forms.OpenFileDialog();
             fileDialog.Filter = "Excel Workbooks (*.xlsx)|*.xlsx";
@@ -38,7 +48,7 @@ namespace Excel_SQLizer.WFP
                 this.messages.Foreground = Brushes.Black;
                 this.messages.Text = "Working...";
 
-                SQLizer sqlizer = new SQLizer(fileDialog.FileName);
+                OLD_SQLizer sqlizer = new OLD_SQLizer(fileDialog.FileName);
                 try
                 {
                     sqlizer.GenerateInsertScript();
@@ -62,6 +72,36 @@ namespace Excel_SQLizer.WFP
                 this.messages.Foreground = Brushes.Black;
                 this.messages.Text = "";
             }
+        }
+
+        private void SelectModeClick(object sender, RoutedEventArgs e)
+        {
+            //Inspired by https://dotnetlearning.wordpress.com/2011/02/20/dropdown-menu-in-wpf/
+            (sender as cntrl.Button).ContextMenu.IsEnabled       = true;
+            (sender as cntrl.Button).ContextMenu.PlacementTarget = (sender as cntrl.Button);
+            (sender as cntrl.Button).ContextMenu.Placement       = cntrl.Primitives.PlacementMode.Bottom;
+            (sender as cntrl.Button).ContextMenu.IsOpen          = true;
+        }
+
+        private void InsertMode(object sender, RoutedEventArgs e)
+        {
+            _insertMode = true;
+            _updateMode = false;
+            _deleteMode = false;
+        }
+
+        private void UpdateMode(object sender, RoutedEventArgs e)
+        {
+            _insertMode = false;
+            _updateMode = true;
+            _deleteMode = false;
+        }
+
+        private void DeleteMode(object sender, RoutedEventArgs e)
+        {
+            _insertMode = false;
+            _updateMode = false;
+            _deleteMode = true;
         }
     }
 }
