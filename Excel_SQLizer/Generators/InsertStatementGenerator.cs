@@ -7,12 +7,13 @@ namespace Excel_SQLizer.Generators
     internal class InsertStatementGenerator : BaseStatementGenerator
     {
 
+        private string _statementPrefix;
 
         public InsertStatementGenerator(string tableName, string columns)
         {
-            string prefix = "INSERT INTO " + tableName + " (" + columns + ") ";
+            _statementPrefix = "INSERT INTO " + tableName + " (" + columns + ") ";
             string fileName = tableName.ToUpper() + "_INSERT_STATEMENTS.sql";
-            Initialize(prefix, fileName);
+            Initialize(columns, fileName, tableName);
         }
 
         public override void AddStatement(string values)

@@ -12,29 +12,29 @@ namespace Excel_SQLizer
         /// </summary>
         protected List<string> _statements;
         /// <summary>
-        /// The statement prefix - the beginning of each statement
-        /// E.g. INSERT INTO EXAMPLE_TABLE (Field1, Field2, Field3) 
-        /// </summary>
-        protected string _statementPrefix;
-        /// <summary>
-        /// The where clause
-        /// </summary>
-        protected string _whereClause;
-        /// <summary>
         /// The file name of the generated statements.
         /// </summary>
         protected string _fileName;
+        /// <summary>
+        /// The columns of the table.
+        /// </summary>
+        protected string _columns;
+        /// <summary>
+        /// The table name
+        /// </summary>
+        protected string _tableName;
 
         /// <summary>
         /// Initializes generator properties.
         /// </summary>
         /// <param name="statementPrefix">The statement prefix.</param>
         /// <param name="whereClause">The where clause.</param>
-        protected void Initialize(string statementPrefix, string fileName, string whereClause = null)
+        protected void Initialize(string columns, string fileName, string tableName)
         {
-            _statementPrefix = statementPrefix;
-            _whereClause     = whereClause;
+            _columns         = columns;
             _fileName        = fileName;
+            _tableName       = tableName;
+            _statements      = new List<string>();
         }
 
         /// <summary>

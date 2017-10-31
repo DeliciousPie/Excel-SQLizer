@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Windows.Forms;
 using Excel_SQLizer;
 using Excel_SQLizer.Exceptions;
+using Excel_SQLizer.SQLizers;
 
 namespace Excel_SQLizer.WFP
 {
@@ -35,20 +36,24 @@ namespace Excel_SQLizer.WFP
             _insertMode = true;
             _updateMode = false;
             _deleteMode = false;
+            this.modeTxt.Content = "Insert mode";
             InitializeComponent();
         }
 
         private void SelectFileClick(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new System.Windows.Forms.OpenFileDialog();
-            fileDialog.Filter = "Excel Workbooks (*.xlsx)|*.xlsx";
+            var fileDialog = new System.Windows.Forms.OpenFileDialog
+            {
+                Filter = "Excel Workbooks (*.xlsx)|*.xlsx"
+            };
             var result = fileDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 this.messages.Foreground = Brushes.Black;
                 this.messages.Text = "Working...";
 
-                OLD_SQLizer sqlizer = new OLD_SQLizer(fileDialog.FileName);
+
+                BaseSQLizer sqlizer = CreateSQLizer(fileDialog.FileName);
                 try
                 {
                     sqlizer.GenerateInsertScript();
@@ -74,6 +79,25 @@ namespace Excel_SQLizer.WFP
             }
         }
 
+        private BaseSQLizer CreateSQLizer(string fileName)
+        {
+            BaseSQLizer sqlizer = null;
+            if (_insertMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerOptions.Insert, fileName);
+            }
+            else if (_updateMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerOptions.Update, fileName);
+            }
+            else if (_deleteMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerOptions.Delete, fileName);
+            }
+
+            return sqlizer;
+        }
+
         private void SelectModeClick(object sender, RoutedEventArgs e)
         {
             //Inspired by https://dotnetlearning.wordpress.com/2011/02/20/dropdown-menu-in-wpf/
@@ -88,6 +112,7 @@ namespace Excel_SQLizer.WFP
             _insertMode = true;
             _updateMode = false;
             _deleteMode = false;
+            this.modeTxt.Content = "Insert Mode";
         }
 
         private void UpdateMode(object sender, RoutedEventArgs e)
@@ -95,6 +120,7 @@ namespace Excel_SQLizer.WFP
             _insertMode = false;
             _updateMode = true;
             _deleteMode = false;
+            this.modeTxt.Content = "Update mode";
         }
 
         private void DeleteMode(object sender, RoutedEventArgs e)
@@ -102,6 +128,7 @@ namespace Excel_SQLizer.WFP
             _insertMode = false;
             _updateMode = false;
             _deleteMode = true;
+            this.modeTxt.Content = "Delete mode";
         }
     }
 }

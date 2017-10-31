@@ -29,8 +29,11 @@ namespace Excel_SQLizer
         /// <summary>
         /// Creates a generator.
         /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="columns">The columns - comma deliminted.</param>
+        /// <param name="wherePrefix">The where clause prefix.</param>
         /// <returns></returns>
-        protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
+        protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns, string wherePrefix);
 
         public void GenerateInsertScript()
         {
@@ -54,8 +57,11 @@ namespace Excel_SQLizer
                             }
                             //removing trailing comma and space
                             columns = columns.Trim().TrimEnd(',');
+                            //construct where prefix - PK column is assumed to be the first
+                            string wherePrefix = "WHERE " + reader.GetString(0) + " = ";
 
-                            BaseStatementGenerator generator = CreateGenerator(tableName, columns);
+
+                            BaseStatementGenerator generator = CreateGenerator(tableName, columns, wherePrefix);
 
                             while (reader.Read())
                             {
