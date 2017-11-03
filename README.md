@@ -17,6 +17,5 @@ Each sheet will generate it's own SQL script, which is placed in the same folder
 ## TODOs
 * Create some kind of installer or at least provide a zip of DLLs and .exe. 
 * Make the UI less offensive to the human eye.
-* Add support for different statements (UPDATE and DELETE coming soon)
 * Add option for selecting an output destination instead of always generating the SQL scripts in the same folder as Excel source file.
   * But keep the option for that behaviour.
