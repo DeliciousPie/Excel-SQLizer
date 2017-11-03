@@ -55,7 +55,7 @@ namespace Excel_SQLizer.WFP
                 BaseSQLizer sqlizer = CreateSQLizer(fileDialog.FileName);
                 try
                 {
-                    sqlizer.GenerateInsertScript();
+                    sqlizer.GenerateSQLScripts();
                     this.messages.Foreground = Brushes.Green;
                     this.messages.Text = "Successfully created script(s) in " + System.IO.Path.GetDirectoryName(fileDialog.FileName);
                 }

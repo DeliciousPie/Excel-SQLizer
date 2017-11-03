@@ -34,7 +34,11 @@ namespace Excel_SQLizer
         /// <returns>A BaseStatementGenerator of the correct type</returns>
         protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
 
-        public void GenerateInsertScript()
+        /// <summary>
+        /// Generates the SQL scripts.
+        /// </summary>
+        /// <exception cref="WorkbookOpenException"></exception>
+        public void GenerateSQLScripts()
         {
             try
             {
