@@ -36,7 +36,6 @@ namespace Excel_SQLizer.WFP
             _insertMode = true;
             _updateMode = false;
             _deleteMode = false;
-            this.modeTxt.Content = "Insert mode";
             InitializeComponent();
         }
 

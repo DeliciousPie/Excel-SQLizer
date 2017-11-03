@@ -16,9 +16,14 @@ namespace Excel_SQLizer.Generators
             Initialize(columns, fileName, tableName);
         }
 
-        public override void AddStatement(string values)
+        public override void AddStatement(List<object> values)
         {
-            string statement = _statementPrefix + " VALUES (" + values + ")";
+            string statement = _statementPrefix + " VALUES (";
+            foreach (var value in values)
+            {
+                statement += value.ToString() + ",";
+            }
+            statement = statement.TrimEnd(',') + ")";
             _statements.Add(statement);
         }
     }

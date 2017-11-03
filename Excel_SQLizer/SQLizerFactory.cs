@@ -23,10 +23,10 @@ namespace Excel_SQLizer
                     sqlizer = new InsertSQLizer(filePath, outPath);
                     break;
                 case SQLizerOptions.Update:
-                    throw new NotImplementedException();
+                    sqlizer = new UpdateSQLizer(filePath, outPath);
                     break;
                 case SQLizerOptions.Delete:
-                    throw new NotImplementedException();
+                    sqlizer = new DeleteSQLizer(filePath, outPath);
                     break;
                 default:
                     throw new Exception("Invalid SQLizer option");

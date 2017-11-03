@@ -6,18 +6,18 @@ namespace Excel_SQLizer.Generators
 {
     public class DeleteStatementGenerator : BaseStatementGenerator
     {
-        //TODO: Move this into BaseStatementGenerator
-        private string[] _colArray;
         public DeleteStatementGenerator(string tableName, string columns)
         {
             string fileName = tableName.ToUpper() + "_DELETE_STATEMENTS.sql";
-            _colArray = columns.Split(',');
             Initialize(columns, fileName, tableName);
         }
 
-        public override void AddStatement(string values)
+        public override void AddStatement(List<object> values)
         {
-            
+            //first value must be ID
+            string id = values[0].ToString();
+            string statement = "DELETE " + _tableName + " WHERE " + _colArray[0] + " = " + id;
+            _statements.Add(statement);
         }
     }
 }

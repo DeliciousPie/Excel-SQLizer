@@ -5,18 +5,17 @@ using Excel_SQLizer.Generators;
 
 namespace Excel_SQLizer.SQLizers
 {
-    public class InsertSQLizer : BaseSQLizer
+    public class DeleteSQLizer : BaseSQLizer
     {
 
-        public InsertSQLizer(string filePath, string outPath = null)
+        public DeleteSQLizer(string filePath, string outPath = null)
         {
             Initialize(filePath, outPath);
         }
 
-
         protected override BaseStatementGenerator CreateGenerator(string tableName, string columns)
         {
-            return new InsertStatementGenerator(tableName, columns);
+            return new DeleteStatementGenerator(tableName, columns);
         }
     }
 }

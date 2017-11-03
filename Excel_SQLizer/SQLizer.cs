@@ -31,9 +31,8 @@ namespace Excel_SQLizer
         /// </summary>
         /// <param name="tableName">Name of the table.</param>
         /// <param name="columns">The columns - comma deliminted.</param>
-        /// <param name="wherePrefix">The where clause prefix.</param>
-        /// <returns></returns>
-        protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns, string wherePrefix);
+        /// <returns>A BaseStatementGenerator of the correct type</returns>
+        protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
 
         public void GenerateInsertScript()
         {
@@ -57,21 +56,18 @@ namespace Excel_SQLizer
                             }
                             //removing trailing comma and space
                             columns = columns.Trim().TrimEnd(',');
-                            //construct where prefix - PK column is assumed to be the first
-                            string wherePrefix = "WHERE " + reader.GetString(0) + " = ";
 
-
-                            BaseStatementGenerator generator = CreateGenerator(tableName, columns, wherePrefix);
+                            BaseStatementGenerator generator = CreateGenerator(tableName, columns);
 
                             while (reader.Read())
                             {
-                                string values = "";
+                                List<object> vals = new List<object>();
                                 for (int i = 0; i < reader.FieldCount; i++)
                                 {
                                     //For null fields use the NULL keyword
                                     if (reader.IsDBNull(i))
                                     {
-                                        values += "NULL";
+                                        vals.Add("NULL");
                                     }
                                     else
                                     {
@@ -79,18 +75,16 @@ namespace Excel_SQLizer
                                         var fieldType = reader.GetFieldType(i).Name.ToLower();
                                         if (fieldType.ToString().Equals("string"))
                                         {
-                                            values += "'" + reader.GetString(i) + "'";
+                                            vals.Add("'" + reader.GetString(i) + "'");
                                         }
                                         else
                                         {
-                                            values += reader.GetValue(i);
+                                            vals.Add(reader.GetValue(i));
                                         }
                                     }
 
-                                    values += ", ";
                                 }
-                                values = values.Trim().TrimEnd(',');
-                                generator.AddStatement(values);
+                                generator.AddStatement(vals);
                             }
                             _statementGenerators.Add(generator);
 

@@ -10,8 +10,8 @@ namespace Excel_SQLizer
         /// <summary>
         /// Adds the statement to the list of generated statements.
         /// </summary>
-        /// <param name="values">The values to add. Comma delimited.</param>
-        void AddStatement(string values);
+        /// <param name="values">The values to add. List of objects (strings or numbers).</param>
+        void AddStatement(List<object> values);
 
 
         /// <summary>

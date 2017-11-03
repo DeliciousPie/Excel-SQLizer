@@ -25,6 +25,16 @@ namespace Excel_SQLizer
         protected string _tableName;
 
         /// <summary>
+        /// The primary key column.
+        /// </summary>
+        protected string _idCol;
+
+        /// <summary>
+        /// An array of the column names
+        /// </summary>
+        protected string[] _colArray;
+
+        /// <summary>
         /// Initializes generator properties.
         /// </summary>
         /// <param name="statementPrefix">The statement prefix.</param>
@@ -32,6 +42,7 @@ namespace Excel_SQLizer
         protected void Initialize(string columns, string fileName, string tableName)
         {
             _columns         = columns;
+            _colArray        = columns.Split(',');
             _fileName        = fileName;
             _tableName       = tableName;
             _statements      = new List<string>();
@@ -40,8 +51,8 @@ namespace Excel_SQLizer
         /// <summary>
         /// Adds the statement to the list of generated statements.
         /// </summary>
-        /// <param name="values">The values to add. Comma delimited.</param>
-        public abstract void AddStatement(string values);
+        /// <param name="values">The values to add. A list of objects (strings or numbers)</param>
+        public abstract void AddStatement(List<object> values);
 
         /// <summary>
         /// Gets the statements.
