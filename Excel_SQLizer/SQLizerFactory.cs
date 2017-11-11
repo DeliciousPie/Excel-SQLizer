@@ -10,7 +10,8 @@ namespace Excel_SQLizer
     {
         Insert,
         Update,
-        Delete
+        Delete,
+        InsertOrUpdate
     }
     public static class SQLizerFactory
     {
@@ -27,6 +28,9 @@ namespace Excel_SQLizer
                     break;
                 case SQLizerOptions.Delete:
                     sqlizer = new DeleteSQLizer(filePath, outPath);
+                    break;
+                case SQLizerOptions.InsertOrUpdate:
+                    sqlizer = new InsertOrUpdateSQLizer(filePath, outPath);
                     break;
                 default:
                     throw new Exception("Invalid SQLizer option");

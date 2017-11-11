@@ -29,13 +29,15 @@ namespace Excel_SQLizer.WFP
         private bool _insertMode;
         private bool _updateMode;
         private bool _deleteMode;
+        private bool _insertOrUpdateMode;
 
         public MainWindow()
         {
-            //default insertMode
-            _insertMode = true;
-            _updateMode = false;
-            _deleteMode = false;
+            //default insertOrUpdateMode
+            _insertOrUpdateMode = true;
+            _insertMode         = false;
+            _updateMode         = false;
+            _deleteMode         = false;
             InitializeComponent();
         }
 
@@ -93,6 +95,10 @@ namespace Excel_SQLizer.WFP
             {
                 sqlizer = SQLizerFactory.Create(SQLizerOptions.Delete, fileName);
             }
+            else if (_insertOrUpdateMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerOptions.InsertOrUpdate, fileName);
+            }
 
             return sqlizer;
         }
@@ -108,26 +114,38 @@ namespace Excel_SQLizer.WFP
 
         private void InsertMode(object sender, RoutedEventArgs e)
         {
-            _insertMode = true;
-            _updateMode = false;
-            _deleteMode = false;
+            _insertMode          = true;
+            _updateMode          = false;
+            _deleteMode          = false;
+            _insertOrUpdateMode  = false;
             this.modeTxt.Content = "Insert Mode";
         }
 
         private void UpdateMode(object sender, RoutedEventArgs e)
         {
-            _insertMode = false;
-            _updateMode = true;
-            _deleteMode = false;
+            _insertMode          = false;
+            _updateMode          = true;
+            _deleteMode          = false;
+            _insertOrUpdateMode  = false;
             this.modeTxt.Content = "Update mode";
         }
 
         private void DeleteMode(object sender, RoutedEventArgs e)
         {
-            _insertMode = false;
-            _updateMode = false;
-            _deleteMode = true;
+            _insertMode          = false;
+            _updateMode          = false;
+            _deleteMode          = true;
+            _insertOrUpdateMode  = false;
             this.modeTxt.Content = "Delete mode";
+        }
+
+        private void InsertOrUpdateMode(object send, RoutedEventArgs e)
+        {
+            _insertMode         = false;
+            _updateMode         = false;
+            _deleteMode         = false;
+            _insertOrUpdateMode = true;
+            this.modeTxt.Content = "Insert or Update mode";
         }
     }
 }
