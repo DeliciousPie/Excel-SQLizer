@@ -2,9 +2,7 @@
 A simple GUI app to convert Excel data into SQL insert statements.
 
 ## Installation
-Right now you need to build the project in VisualStudio and use the .exe from the debug folder. It's rough right now.
-
-Sorry about that.
+Download the latest release. Application is run from the 'Excel-SQLizer.WFP.exe' file.
 
 ## Using
 Excel-SQLizer expects a very specifically structured Excel file in order to convert it into SQL statements (update, insert, and delete).
