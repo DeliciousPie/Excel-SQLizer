@@ -65,30 +65,33 @@ namespace Excel_SQLizer
 
                             while (reader.Read())
                             {
-                                List<object> vals = new List<object>();
-                                for (int i = 0; i < reader.FieldCount; i++)
+                                if (ColumnsHaveData(reader))
                                 {
-                                    //For null fields use the NULL keyword
-                                    if (reader.IsDBNull(i))
+                                    List<object> vals = new List<object>();
+                                    for (int i = 0; i < reader.FieldCount; i++)
                                     {
-                                        vals.Add("NULL");
-                                    }
-                                    else
-                                    {
-                                        //if value is string wrap it in ' ' quotes, else just add it.
-                                        var fieldType = reader.GetFieldType(i).Name.ToLower();
-                                        if (fieldType.ToString().Equals("string"))
+                                        //For null fields use the NULL keyword
+                                        if (reader.IsDBNull(i))
                                         {
-                                            vals.Add("'" + reader.GetString(i) + "'");
+                                            vals.Add("NULL");
                                         }
                                         else
                                         {
-                                            vals.Add(reader.GetValue(i));
+                                            //if value is string wrap it in ' ' quotes, else just add it.
+                                            var fieldType = reader.GetFieldType(i).Name.ToLower();
+                                            if (fieldType.ToString().Equals("string"))
+                                            {
+                                                vals.Add("'" + reader.GetString(i) + "'");
+                                            }
+                                            else
+                                            {
+                                                vals.Add(reader.GetValue(i));
+                                            }
                                         }
-                                    }
 
+                                    }
+                                    generator.AddStatement(vals);
                                 }
-                                generator.AddStatement(vals);
                             }
                             _statementGenerators.Add(generator);
 
@@ -132,6 +135,22 @@ namespace Excel_SQLizer
                     }
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Determines if the columns of the current row of the reader have data (e.g. not null and not commented)
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns></returns>
+        private bool ColumnsHaveData(IExcelDataReader reader)
+        {
+            // Currently, just checking that the PK column is not null and is not a comment character (e.g. // or --)
+            // For this hasty bug fix, just check that it isn't a string. String PKs are not really a thing but still this is 
+            //  dumb to not document.
+            bool result = !reader.IsDBNull(0) && reader.GetFieldType(0).Name.ToLower() != "string";
+
+            return result;
         }
     }
 }

@@ -8,12 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExcelDataReader" Version="3.2.0" />
-    <PackageReference Include="ExcelDataReader.DataSet" Version="3.2.0" />
+    <Folder Include="StatementBehaviours\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="StatementBehaviours\" />
+    <PackageReference Include="ExcelDataReader" Version="3.4.0" />
   </ItemGroup>
 
 </Project>
