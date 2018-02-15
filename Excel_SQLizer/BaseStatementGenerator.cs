@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Excel_SQLizer
 {
-    public abstract class BaseStatementGenerator : IStatementGenerator
+    public abstract class BaseStatementGenerator
     {
 
         /// <summary>
