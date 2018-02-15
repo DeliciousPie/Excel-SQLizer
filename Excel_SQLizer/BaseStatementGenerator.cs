@@ -41,11 +41,11 @@ namespace Excel_SQLizer
         /// <param name="whereClause">The where clause.</param>
         protected void Initialize(string columns, string fileName, string tableName)
         {
-            _columns         = columns;
-            _colArray        = columns.Split(',');
-            _fileName        = fileName;
-            _tableName       = tableName;
-            _statements      = new List<string>();
+            _columns    = columns;
+            _colArray   = columns.Split(',');
+            _fileName   = fileName;
+            _tableName  = tableName;
+            _statements = new List<string>();
         }
 
         /// <summary>
