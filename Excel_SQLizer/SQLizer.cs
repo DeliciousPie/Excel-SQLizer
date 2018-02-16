@@ -11,6 +11,8 @@ namespace Excel_SQLizer
     {
         protected string _filePath;
         protected string _outPath;
+        protected FileType _fileType;
+        protected MemoryStream _stream;
         protected List<BaseStatementGenerator> _statementGenerators;
 
         /// <summary>
@@ -23,6 +25,17 @@ namespace Excel_SQLizer
             _filePath = filePath;
             //Sets an out path for the file if passed in, otherwise default to same path as the excel file
             _outPath = outPath ?? Path.GetDirectoryName(filePath);
+            _statementGenerators = new List<BaseStatementGenerator>();
+        }
+
+        /// <summary>
+        /// Initializes all SQLizer settings.
+        /// </summary>
+        /// <param name="stream">The stream of the file to be SQLized.</param>
+        protected void Initialize(FileType fileType, MemoryStream stream)
+        {
+            _fileType            = fileType;
+            _stream              = stream;
             _statementGenerators = new List<BaseStatementGenerator>();
         }
 
@@ -137,6 +150,19 @@ namespace Excel_SQLizer
             }
         }
 
+
+        /// <summary>
+        /// Gets the correct reader for the filetype of the stream.
+        /// </summary>
+        /// <returns>An IExcelDataReader of the correct type for the _stream.</returns>
+        private IExcelDataReader GetReader()
+        {
+            IExcelDataReader reader = _fileType == FileType.Excel
+                                        ? ExcelReaderFactory.CreateReader(_stream)
+                                        : ExcelReaderFactory.CreateCsvReader(_stream);
+
+            return reader;
+        }
 
         /// <summary>
         /// Determines if the columns of the current row of the reader have data (e.g. not null and not commented)

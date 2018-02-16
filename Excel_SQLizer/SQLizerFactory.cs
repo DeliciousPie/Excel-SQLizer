@@ -7,30 +7,39 @@ using Excel_SQLizer.SQLizers;
 
 namespace Excel_SQLizer
 {
-    public enum SQLizerOptions
+    // Defines what type of SQLizer to create - what SQL statements do you want to generate?
+    public enum SQLizerType
     {
         Insert,
         Update,
         Delete,
         InsertOrUpdate
     }
+
+    // Controls whether the file being read is an Excel file (e.g. .xlsx) or a CSV 
+    public enum FileType
+    {
+        Excel,
+        CSV
+    }
+
     public static class SQLizerFactory
     {
-        public static BaseSQLizer Create(SQLizerOptions option, string filePath, string outPath = null)
+        public static BaseSQLizer Create(SQLizerType option, string filePath, string outPath = null)
         {
             BaseSQLizer sqlizer = null;
             switch (option)
             {
-                case SQLizerOptions.Insert:
+                case SQLizerType.Insert:
                     sqlizer = new InsertSQLizer(filePath, outPath);
                     break;
-                case SQLizerOptions.Update:
+                case SQLizerType.Update:
                     sqlizer = new UpdateSQLizer(filePath, outPath);
                     break;
-                case SQLizerOptions.Delete:
+                case SQLizerType.Delete:
                     sqlizer = new DeleteSQLizer(filePath, outPath);
                     break;
-                case SQLizerOptions.InsertOrUpdate:
+                case SQLizerType.InsertOrUpdate:
                     sqlizer = new InsertOrUpdateSQLizer(filePath, outPath);
                     break;
                 default:
@@ -40,26 +49,26 @@ namespace Excel_SQLizer
             return sqlizer;
         }
 
-        public static BaseSQLizer Create(SQLizerOptions option, MemoryStream stream)
+        public static BaseSQLizer Create(SQLizerType sqlType, FileType fileType, MemoryStream stream)
         {
             BaseSQLizer sqlizer = null;
-            //switch (option)
-            //{
-            //    case SQLizerOptions.Insert:
-            //        sqlizer = new InsertSQLizer(stream);
-            //        break;
-            //    case SQLizerOptions.Update:
-            //        sqlizer = new UpdateSQLizer(stream);
-            //        break;
-            //    case SQLizerOptions.Delete:
-            //        sqlizer = new DeleteSQLizer(stream);
-            //        break;
-            //    case SQLizerOptions.InsertOrUpdate:
-            //        sqlizer = new InsertOrUpdateSQLizer(stream);
-            //        break;
-            //    default:
-            //        throw new Exception("Invalid SQLizer option");
-            //}
+            switch (sqlType)
+            {
+                case SQLizerType.Insert:
+                    sqlizer = new InsertSQLizer(fileType, stream);
+                    break;
+                case SQLizerType.Update:
+                    sqlizer = new UpdateSQLizer(fileType, stream);
+                    break;
+                case SQLizerType.Delete:
+                    sqlizer = new DeleteSQLizer(fileType, stream);
+                    break;
+                case SQLizerType.InsertOrUpdate:
+                    sqlizer = new InsertOrUpdateSQLizer(fileType, stream);
+                    break;
+                default:
+                    throw new Exception("Invalid SQLizer option");
+            }
 
             return sqlizer;
         }

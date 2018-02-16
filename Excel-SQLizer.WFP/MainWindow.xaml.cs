@@ -85,19 +85,19 @@ namespace Excel_SQLizer.WFP
             BaseSQLizer sqlizer = null;
             if (_insertMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerOptions.Insert, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.Insert, fileName);
             }
             else if (_updateMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerOptions.Update, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.Update, fileName);
             }
             else if (_deleteMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerOptions.Delete, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.Delete, fileName);
             }
             else if (_insertOrUpdateMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerOptions.InsertOrUpdate, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.InsertOrUpdate, fileName);
             }
 
             return sqlizer;
