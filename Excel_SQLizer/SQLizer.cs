@@ -39,7 +39,6 @@ namespace Excel_SQLizer
         protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
 
 
-        // Return dictionary where key == table name, value == list of sql statements
         /// <summary>
         /// Gets the SQL statements from the file used to create the SQLizer.
         /// </summary>
@@ -126,7 +125,7 @@ namespace Excel_SQLizer
 
             foreach (BaseStatementGenerator generator in _statementGenerators)
             {
-                result.Add(generator.TableName, generator.GetStatements());
+                result.Add(generator.TableName, generator.Statements);
             }
 
             return result;

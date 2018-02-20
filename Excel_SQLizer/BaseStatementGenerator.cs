@@ -46,6 +46,17 @@ namespace Excel_SQLizer
         }
 
         /// <summary>
+        /// Gets the statements.
+        /// </summary>
+        /// <value>
+        /// The statements.
+        /// </value>
+        public List<string> Statements
+        {
+            get { return _statements; }
+        }
+
+        /// <summary>
         /// Initializes generator properties.
         /// </summary>
         /// <param name="statementPrefix">The statement prefix.</param>
@@ -65,24 +76,5 @@ namespace Excel_SQLizer
         /// <param name="values">The values to add. A list of objects (strings or numbers)</param>
         public abstract void AddStatement(List<object> values);
 
-        /// <summary>
-        /// Gets the statements.
-        /// </summary>
-        /// <returns>
-        /// A list of all generated statements
-        /// </returns>
-        public List<string> GetStatements()
-        {
-            return _statements;
-        }
-
-        /// <summary>
-        /// Gets the name of the file.
-        /// </summary>
-        /// <returns></returns>
-        public string GetFileName()
-        {
-            return _fileName;
-        }
     }
 }
