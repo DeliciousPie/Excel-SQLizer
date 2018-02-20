@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using Excel_SQLizer;
 using Excel_SQLizer.Exceptions;
 using Excel_SQLizer.SQLizers;
+using System.IO;
 
 namespace Excel_SQLizer.WFP
 {
@@ -45,7 +46,7 @@ namespace Excel_SQLizer.WFP
         {
             var fileDialog = new System.Windows.Forms.OpenFileDialog
             {
-                Filter = "Excel Workbooks (*.xlsx)|*.xlsx"
+                Filter = "All (*.xlsx;*.xls;*csv)|*.xlsx;*.xls;*csv|Excel Workbooks (*.xlsx;*.xls)|*.xlsx;*.xls|CSV (*.csv)|*.csv"
             };
             var result = fileDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
@@ -53,24 +54,36 @@ namespace Excel_SQLizer.WFP
                 this.messages.Foreground = Brushes.Black;
                 this.messages.Text = "Working...";
 
+                // Determine the selected file type - includes the '.'
+                string extension = System.IO.Path.GetExtension(fileDialog.FileName);
+                // Open the selected file as a file stream
+                using (FileStream fileStream = File.Open(fileDialog.FileName, FileMode.Open, FileAccess.Read))
+                {
 
-                BaseSQLizer sqlizer = CreateSQLizer(fileDialog.FileName);
-                try
-                {
-                    sqlizer.GenerateSQLScripts();
-                    this.messages.Foreground = Brushes.Green;
-                    this.messages.Text = "Successfully created script(s) in " + System.IO.Path.GetDirectoryName(fileDialog.FileName);
-                }
-                catch (WorkbookOpenException)
-                {
-                    this.messages.Foreground = Brushes.Red;
-                    this.messages.Text = "Error - workbook is opened by another process.";
-                }
-                catch (Exception exception)
-                {
-                    //update error message
-                    this.messages.Foreground = Brushes.Red;
-                    this.messages.Text = exception.Message;
+                    MemoryStream memStream = new MemoryStream();
+                    // Copy to a memory stream (the format SQLizer works with)
+                    fileStream.CopyTo(memStream);
+                    BaseSQLizer sqlizer = CreateSQLizer(fileDialog.FileName, extension, memStream);
+                    try
+                    {
+                        Dictionary<string, List<string>> sqlResults = sqlizer.GetSQLStatements();
+                        string outPath = System.IO.Path.GetDirectoryName(fileDialog.FileName);
+                        WriteSqlScripts(sqlResults, outPath);
+                        this.messages.Foreground = Brushes.Green;
+                        this.messages.Text = "Successfully created script(s) in " + System.IO.Path.GetDirectoryName(fileDialog.FileName);
+                        memStream.Dispose();
+                    }
+                    catch (WorkbookOpenException)
+                    {
+                        this.messages.Foreground = Brushes.Red;
+                        this.messages.Text = "Error - workbook is opened by another process.";
+                    }
+                    catch (Exception exception)
+                    {
+                        //update error message
+                        this.messages.Foreground = Brushes.Red;
+                        this.messages.Text = exception.Message;
+                    }
                 }
             }
             else
@@ -80,27 +93,82 @@ namespace Excel_SQLizer.WFP
             }
         }
 
-        private BaseSQLizer CreateSQLizer(string fileName)
+        private void WriteSqlScripts(Dictionary<string, List<string>> sqlResults, string outPath)
         {
-            BaseSQLizer sqlizer = null;
-            if (_insertMode)
+            foreach (KeyValuePair<string, List<string>>kv in sqlResults)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerType.Insert, fileName);
+                string filePath = $"{outPath}\\{GetScriptName(kv.Key)}";
+                // If the file already exists, delete it
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                // Create the file to write too
+                using (StreamWriter sw = File.CreateText(filePath))
+                {
+                    // Each item in the list is a new line of SQL to write
+                    foreach (string statement in kv.Value)
+                    {
+                        sw.WriteLine(statement);
+                    }
+                }
+            }
+        }
+
+        private BaseSQLizer CreateSQLizer(string filePath, string extension, MemoryStream memStream)
+        {
+            FileType fileType = extension.ToLower() == ".csv"
+                            ? FileType.CSV
+                            : FileType.Excel;
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+
+            BaseSQLizer sqlizer = null;
+            if (_insertOrUpdateMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerType.InsertOrUpdate, fileType, memStream, fileName);
+            }
+            else if (_insertMode)
+            {
+                sqlizer = SQLizerFactory.Create(SQLizerType.Insert, fileType, memStream, fileName);
             }
             else if (_updateMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerType.Update, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.Update, fileType, memStream, fileName);
             }
             else if (_deleteMode)
             {
-                sqlizer = SQLizerFactory.Create(SQLizerType.Delete, fileName);
-            }
-            else if (_insertOrUpdateMode)
-            {
-                sqlizer = SQLizerFactory.Create(SQLizerType.InsertOrUpdate, fileName);
+                sqlizer = SQLizerFactory.Create(SQLizerType.Delete, fileType, memStream, fileName);
             }
 
             return sqlizer;
+        }
+
+        /// <summary>
+        /// Gets the name of the script, based on the table name and type of SQL generated.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <returns></returns>
+        private string GetScriptName(string tableName)
+        {
+            string result = tableName.ToUpper();
+            if (_insertOrUpdateMode)
+            {
+                result += "_INSERT_OR_UPDATE_STATEMENTS.sql";
+            }
+            else if (_updateMode)
+            {
+                result += "_UPDATE_STATEMENTS.sql";
+            }
+            else if (_deleteMode)
+            {
+                result += "_DELETE_STATEMENTS.sql";
+            }
+            else if (_insertMode)
+            {
+                result += "_INSERT_STATEMENTS.sql";
+            }
+
+            return result;
         }
 
         private void SelectModeClick(object sender, RoutedEventArgs e)

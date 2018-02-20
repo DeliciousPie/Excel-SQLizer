@@ -35,6 +35,17 @@ namespace Excel_SQLizer
         protected string[] _colArray;
 
         /// <summary>
+        /// Gets the name of the table.
+        /// </summary>
+        /// <value>
+        /// The name of the table.
+        /// </value>
+        public string TableName
+        {
+            get { return _tableName; }
+        }
+
+        /// <summary>
         /// Initializes generator properties.
         /// </summary>
         /// <param name="statementPrefix">The statement prefix.</param>

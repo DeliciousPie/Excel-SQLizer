@@ -8,15 +8,9 @@ namespace Excel_SQLizer.SQLizers
 {
     public class DeleteSQLizer : BaseSQLizer
     {
-
-        public DeleteSQLizer(string filePath, string outPath = null)
+        public DeleteSQLizer(FileType fileType, MemoryStream stream, string tableName = null)
         {
-            Initialize(filePath, outPath);
-        }
-
-        public DeleteSQLizer(FileType fileType, MemoryStream stream)
-        {
-            Initialize(fileType, stream);
+            Initialize(fileType, stream, tableName);
         }
 
         protected override BaseStatementGenerator CreateGenerator(string tableName, string columns)

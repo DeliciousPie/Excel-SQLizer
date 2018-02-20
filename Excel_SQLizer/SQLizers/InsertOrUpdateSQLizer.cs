@@ -8,15 +8,9 @@ namespace Excel_SQLizer.SQLizers
 {
     public class InsertOrUpdateSQLizer : BaseSQLizer
     {
-
-        public InsertOrUpdateSQLizer(string filePath, string outPath = null)
+        public InsertOrUpdateSQLizer(FileType fileType, MemoryStream stream, string tableName = null)
         {
-            Initialize(filePath, outPath);
-        }
-
-        public InsertOrUpdateSQLizer(FileType fileType, MemoryStream stream)
-        {
-            Initialize(fileType, stream);
+            Initialize(fileType, stream, tableName);
         }
 
         protected override BaseStatementGenerator CreateGenerator(string tableName, string columns)

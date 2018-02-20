@@ -25,46 +25,42 @@ namespace Excel_SQLizer
 
     public static class SQLizerFactory
     {
-        public static BaseSQLizer Create(SQLizerType option, string filePath, string outPath = null)
+        /// <summary>
+        /// Creates the specified SQL type.
+        /// </summary>
+        /// <param name="sqlType">Type of the SQL to generate.</param>
+        /// <param name="fileType">Type of the file (CSV or XLSX).</param>
+        /// <param name="stream">The stream of the file.</param>
+        /// <param name="tableName">
+        /// Name of the table. 
+        /// Only necessary for CSV files since SQLizer doesn't have access to it's name. Will cause an exception
+        /// if this parameter is null and the file type is CSV.
+        /// </param>
+        /// <returns>A SQLizer of the correct type based on the parameters supplied</returns>
+        /// <exception cref="Exception">Invalid SQLizer option</exception>
+        /// /// <exception cref="Exception">The tablename parameter is required when reading CSV files!</exception>
+        public static BaseSQLizer Create(SQLizerType sqlType, FileType fileType, MemoryStream stream, string tableName = null)
         {
-            BaseSQLizer sqlizer = null;
-            switch (option)
+            // CSVs require that a table name be passed in. The sqlizer will not work correctly without it
+            if (fileType == FileType.CSV && tableName == null)
             {
-                case SQLizerType.Insert:
-                    sqlizer = new InsertSQLizer(filePath, outPath);
-                    break;
-                case SQLizerType.Update:
-                    sqlizer = new UpdateSQLizer(filePath, outPath);
-                    break;
-                case SQLizerType.Delete:
-                    sqlizer = new DeleteSQLizer(filePath, outPath);
-                    break;
-                case SQLizerType.InsertOrUpdate:
-                    sqlizer = new InsertOrUpdateSQLizer(filePath, outPath);
-                    break;
-                default:
-                    throw new Exception("Invalid SQLizer option");
+                throw new Exception("The tablename parameter is required when reading CSV files!");
             }
 
-            return sqlizer;
-        }
-
-        public static BaseSQLizer Create(SQLizerType sqlType, FileType fileType, MemoryStream stream)
-        {
             BaseSQLizer sqlizer = null;
             switch (sqlType)
             {
                 case SQLizerType.Insert:
-                    sqlizer = new InsertSQLizer(fileType, stream);
+                    sqlizer = new InsertSQLizer(fileType, stream, tableName);
                     break;
                 case SQLizerType.Update:
-                    sqlizer = new UpdateSQLizer(fileType, stream);
+                    sqlizer = new UpdateSQLizer(fileType, stream, tableName);
                     break;
                 case SQLizerType.Delete:
-                    sqlizer = new DeleteSQLizer(fileType, stream);
+                    sqlizer = new DeleteSQLizer(fileType, stream, tableName);
                     break;
                 case SQLizerType.InsertOrUpdate:
-                    sqlizer = new InsertOrUpdateSQLizer(fileType, stream);
+                    sqlizer = new InsertOrUpdateSQLizer(fileType, stream, tableName);
                     break;
                 default:
                     throw new Exception("Invalid SQLizer option");

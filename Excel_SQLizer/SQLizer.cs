@@ -9,33 +9,24 @@ namespace Excel_SQLizer
 {
     public abstract class BaseSQLizer
     {
-        protected string _filePath;
-        protected string _outPath;
+        // The type of file being read
         protected FileType _fileType;
+        // The memory stream of the file
         protected MemoryStream _stream;
+        // Optional, the name of the table. Only used when reading a CSV.
+        protected string _tableName;
+        // A list of all statement generators created.
         protected List<BaseStatementGenerator> _statementGenerators;
 
         /// <summary>
         /// Initializes all SQLizer settings.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="outPath">The out path.</param>
-        protected void Initialize(string filePath, string outPath = null)
-        {
-            _filePath = filePath;
-            //Sets an out path for the file if passed in, otherwise default to same path as the excel file
-            _outPath = outPath ?? Path.GetDirectoryName(filePath);
-            _statementGenerators = new List<BaseStatementGenerator>();
-        }
-
-        /// <summary>
-        /// Initializes all SQLizer settings.
-        /// </summary>
         /// <param name="stream">The stream of the file to be SQLized.</param>
-        protected void Initialize(FileType fileType, MemoryStream stream)
+        protected void Initialize(FileType fileType, MemoryStream stream, string tableName = null)
         {
             _fileType            = fileType;
             _stream              = stream;
+            _tableName           = tableName;
             _statementGenerators = new List<BaseStatementGenerator>();
         }
 
@@ -47,25 +38,29 @@ namespace Excel_SQLizer
         /// <returns>A BaseStatementGenerator of the correct type</returns>
         protected abstract BaseStatementGenerator CreateGenerator(string tableName, string columns);
 
+
+        // Return dictionary where key == table name, value == list of sql statements
         /// <summary>
-        /// Generates the SQL scripts.
+        /// Gets the SQL statements from the file used to create the SQLizer.
         /// </summary>
-        /// <exception cref="WorkbookOpenException"></exception>
-        public void GenerateSQLScripts()
+        /// <returns>A dictionary keyed on the table name with a value of a List of strings of SQL statements.</returns>
+        /// <exception cref="WorkbookOpenException">Workbook is open by another process and cannot be accessed.</exception>
+        public Dictionary<string, List<string>> GetSQLStatements()
         {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
             try
             {
-                using (FileStream stream = File.Open(_filePath, FileMode.Open, FileAccess.Read))
+                // Open the stream
+                using (_stream)
                 {
-                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    using (IExcelDataReader reader = GetReader())
                     {
-                        int tableCount = reader.ResultsCount;
-
+                        // Read each worksheet
                         do
                         {
-                            //first row is the column names
-                            string tableName = reader.Name;
+                            // First row is column names
                             string columns = "";
+                            // Moves the reader to the first row of the worksheet
                             reader.Read();
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
@@ -73,9 +68,14 @@ namespace Excel_SQLizer
                             }
                             //removing trailing comma and space
                             columns = columns.Trim().TrimEnd(',');
+                            // CSV readers don't have access to the sheet name. 
+                            string tableName = reader.Name != string.Empty
+                                                ? reader.Name
+                                                : _tableName;
 
                             BaseStatementGenerator generator = CreateGenerator(tableName, columns);
 
+                            // Read each row
                             while (reader.Read())
                             {
                                 if (ColumnsHaveData(reader))
@@ -90,16 +90,7 @@ namespace Excel_SQLizer
                                         }
                                         else
                                         {
-                                            //if value is string wrap it in ' ' quotes, else just add it.
-                                            var fieldType = reader.GetFieldType(i).Name.ToLower();
-                                            if (fieldType.ToString().Equals("string"))
-                                            {
-                                                vals.Add("'" + reader.GetString(i) + "'");
-                                            }
-                                            else
-                                            {
-                                                vals.Add(reader.GetValue(i));
-                                            }
+                                            vals.Add(GetReaderValue(reader, i));
                                         }
 
                                     }
@@ -107,47 +98,111 @@ namespace Excel_SQLizer
                                 }
                             }
                             _statementGenerators.Add(generator);
-
                         } while (reader.NextResult());
-
                     }
                 }
             }
-            catch (IOException)
+            catch (IOException ex)
             {
-                throw new WorkbookOpenException();
+                throw new WorkbookOpenException("Workbook is open by another process and cannot be accessed.", ex);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                throw ex;
             }
-            //write out the SQL file
-            WriteSqlFile();
 
+            result = BuildResults();
+
+            return result;
         }
 
         /// <summary>
-        /// Writes the SQL file.
+        /// Builds the results to be returned to the client.
         /// </summary>
-        internal void WriteSqlFile()
+        /// <returns>A dictionary keyed on table name with a value of a list of SQL statements for that table.</returns>
+        private Dictionary<string, List<string>> BuildResults()
         {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+
             foreach (BaseStatementGenerator generator in _statementGenerators)
             {
-                string filePath = _outPath + @"\" + generator.GetFileName();
-                //if file exists, delete it
-                if (File.Exists(filePath))
+                result.Add(generator.TableName, generator.GetStatements());
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the reader value at the specified index.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="readerIndex">Index of the reader.</param>
+        /// <returns>The value of the reader. It is returned as an object, but it is formatted correctly for the SQL statement.</returns>
+        private object GetReaderValue(IExcelDataReader reader, int readerIndex)
+        {
+            object result = null;
+            // CSV data readers always return values as strings
+            if (_fileType == FileType.CSV)
+            {
+                result = GetCSVReaderValue(reader, readerIndex);
+            }
+            else
+            {
+                // If the data type is a string, wrap in single quotes
+                var fieldType = reader.GetFieldType(readerIndex).Name.ToLower();
+                if (fieldType.ToString().Equals("string"))
                 {
-                    File.Delete(filePath);
+                    result = $"'{reader.GetString(readerIndex)}'";
                 }
-                //create a file to write to
-                using (StreamWriter sw = File.CreateText(filePath))
+                // Else return value as an object
+                else
                 {
-                    foreach (string insertStatement in generator.GetStatements())
-                    {
-                        sw.WriteLine(insertStatement);
-                    }
+                    result = reader.GetValue(readerIndex);
                 }
             }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the CSV reader value. Any value that starts with a ' or " is treated as a string. Numbers as text
+        /// are treated as text. We expect numbers to actually be numbers.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="readerIndex">Index of the reader.</param>
+        /// <returns></returns>
+        private object GetCSVReaderValue(IExcelDataReader reader, int readerIndex)
+        {
+            object result = reader.GetValue(readerIndex);
+            // Strings need to be wrapped in single quotes
+            // First, check if it's a number as a text. If it starts with a ' or " we don't care if it'll parse as something else -  it's a string
+            if (result.ToString().StartsWith("\"") || result.ToString().StartsWith("'"))
+            {
+                result = $"'{result.ToString()}'";
+            }
+            else if (int.TryParse(result.ToString(), out int intResult))
+            {
+                result = intResult;
+            }
+            else if (double.TryParse(result.ToString(), out double dblResult))
+            {
+                result = dblResult;
+            }
+            else if (DateTime.TryParse(result.ToString(), out DateTime dtResult))
+            {
+                result = dtResult;
+            }
+            // Don't insert empty strings - make them NULL
+            else if (result.ToString() != string.Empty)
+            {
+                result = $"'{result.ToString()}'";
+            }
+            else
+            {
+                result = "NULL";
+            }
+
+            return result;
         }
 
 
@@ -171,10 +226,19 @@ namespace Excel_SQLizer
         /// <returns></returns>
         private bool ColumnsHaveData(IExcelDataReader reader)
         {
-            // Currently, just checking that the PK column is not null and is not a comment character (e.g. // or --)
-            // For this hasty bug fix, just check that it isn't a string. String PKs are not really a thing but still this is 
-            //  dumb to not document.
-            bool result = !reader.IsDBNull(0) && reader.GetFieldType(0).Name.ToLower() != "string";
+            bool result = !reader.IsDBNull(0);
+            // If it's null, ignore
+            if (result)
+            {
+                // If it's a string that starts with // or -- then we ignore
+                // In CSVs all results come back as a string, so check that the length is at least at least 2.
+                // If it's any less then it can't possibly be comments
+                if (reader.GetFieldType(0).Name.ToLower() == "string" && reader.GetValue(0).ToString().Length >= 2)
+                {
+                    string firstChars = reader.GetValue(0).ToString().Substring(0,2);
+                    result = firstChars != @"//" && firstChars != @"--";
+                }
+            }
 
             return result;
         }
