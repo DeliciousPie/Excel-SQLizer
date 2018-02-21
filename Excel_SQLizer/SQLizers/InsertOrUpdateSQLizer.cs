@@ -6,7 +6,7 @@ using Excel_SQLizer.Generators;
 
 namespace Excel_SQLizer.SQLizers
 {
-    public class InsertOrUpdateSQLizer : BaseSQLizer
+    internal class InsertOrUpdateSQLizer : BaseSQLizer
     {
         public InsertOrUpdateSQLizer(FileType fileType, MemoryStream stream, string tableName = null)
         {

@@ -39,15 +39,15 @@ namespace Excel_SQLizer
         /// <returns>A SQLizer of the correct type based on the parameters supplied</returns>
         /// <exception cref="Exception">Invalid SQLizer option</exception>
         /// /// <exception cref="Exception">The tablename parameter is required when reading CSV files!</exception>
-        public static BaseSQLizer Create(SQLizerType sqlType, FileType fileType, MemoryStream stream, string tableName = null)
+        public static ISQLizer Create(SQLizerType sqlType, FileType fileType, MemoryStream stream, string tableName = null)
         {
             // CSVs require that a table name be passed in. The sqlizer will not work correctly without it
-            if (fileType == FileType.CSV && tableName == null)
+            if (fileType == FileType.CSV && string.IsNullOrEmpty(tableName))
             {
                 throw new Exception("The tablename parameter is required when reading CSV files!");
             }
 
-            BaseSQLizer sqlizer = null;
+            ISQLizer sqlizer = null;
             switch (sqlType)
             {
                 case SQLizerType.Insert:
@@ -63,7 +63,7 @@ namespace Excel_SQLizer
                     sqlizer = new InsertOrUpdateSQLizer(fileType, stream, tableName);
                     break;
                 default:
-                    throw new Exception("Invalid SQLizer option");
+                    throw new Exception("Invalid SQLizer option.");
             }
 
             return sqlizer;

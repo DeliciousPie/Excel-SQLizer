@@ -63,7 +63,7 @@ namespace Excel_SQLizer.WFP
                     MemoryStream memStream = new MemoryStream();
                     // Copy to a memory stream (the format SQLizer works with)
                     fileStream.CopyTo(memStream);
-                    BaseSQLizer sqlizer = CreateSQLizer(fileDialog.FileName, extension, memStream);
+                    ISQLizer sqlizer = CreateSQLizer(fileDialog.FileName, extension, memStream);
                     try
                     {
                         Dictionary<string, List<string>> sqlResults = sqlizer.GetSQLStatements();
@@ -115,14 +115,14 @@ namespace Excel_SQLizer.WFP
             }
         }
 
-        private BaseSQLizer CreateSQLizer(string filePath, string extension, MemoryStream memStream)
+        private ISQLizer CreateSQLizer(string filePath, string extension, MemoryStream memStream)
         {
             FileType fileType = extension.ToLower() == ".csv"
                             ? FileType.CSV
                             : FileType.Excel;
             string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
 
-            BaseSQLizer sqlizer = null;
+            ISQLizer sqlizer = null;
             if (_insertOrUpdateMode)
             {
                 sqlizer = SQLizerFactory.Create(SQLizerType.InsertOrUpdate, fileType, memStream, fileName);

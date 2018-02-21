@@ -6,7 +6,7 @@ using Excel_SQLizer.Generators;
 
 namespace Excel_SQLizer.SQLizers
 {
-    public class DeleteSQLizer : BaseSQLizer
+    internal class DeleteSQLizer : BaseSQLizer
     {
         public DeleteSQLizer(FileType fileType, MemoryStream stream, string tableName = null)
         {

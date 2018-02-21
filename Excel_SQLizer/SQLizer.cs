@@ -7,7 +7,7 @@ using ExcelDataReader;
 
 namespace Excel_SQLizer
 {
-    public abstract class BaseSQLizer
+    internal abstract class BaseSQLizer : ISQLizer
     {
         // The type of file being read
         protected FileType _fileType;
