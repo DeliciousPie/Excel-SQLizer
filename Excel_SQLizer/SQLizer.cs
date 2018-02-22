@@ -147,11 +147,12 @@ namespace Excel_SQLizer
             }
             else
             {
-                // If the data type is a string, wrap in single quotes
+                // If the data type is a string, wrap in single quotes and double any single quotes in the string 
+                // (e.g. "Don't" needs to become "Don''t", or else the SQL is wrong)
                 var fieldType = reader.GetFieldType(readerIndex).Name.ToLower();
                 if (fieldType.ToString().Equals("string"))
                 {
-                    result = $"'{reader.GetString(readerIndex)}'";
+                    result = SanitizeString(reader.GetString(readerIndex));
                 }
                 // Else return value as an object
                 else
@@ -177,7 +178,7 @@ namespace Excel_SQLizer
             // First, check if it's a number as a text. If it starts with a ' or " we don't care if it'll parse as something else -  it's a string
             if (result.ToString().StartsWith("\"") || result.ToString().StartsWith("'"))
             {
-                result = $"'{result.ToString()}'";
+                result = SanitizeString(result.ToString());
             }
             else if (int.TryParse(result.ToString(), out int intResult))
             {
@@ -194,7 +195,7 @@ namespace Excel_SQLizer
             // Don't insert empty strings - make them NULL
             else if (result.ToString() != string.Empty)
             {
-                result = $"'{result.ToString()}'";
+                result = SanitizeString(result.ToString());
             }
             else
             {
@@ -240,6 +241,16 @@ namespace Excel_SQLizer
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Sanitizes the string so it is safe to use as a SQL statement.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns>A sanitized string that is valid in a SQL statement.</returns>
+        private string SanitizeString(string str)
+        {
+            return $"'{str.Replace("'", "''")}'";
         }
     }
 }
