@@ -123,11 +123,15 @@ namespace Excel_SQLizer.WFP
                 {
                     foreach (KeyValuePair<string, List<string>> kv in sqlResults)
                     {
+                        // Write a comment of the table name above the SQL
+                        sw.WriteLine($"-- {kv.Key}");
                         // Each item in the list is a new line of SQL to write
                         foreach (string statement in kv.Value)
                         {
                             sw.WriteLine(statement);
                         }
+                        // Add an empty line between tables
+                        sw.WriteLine("");
                     }
                 }
             }
