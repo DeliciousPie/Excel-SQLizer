@@ -154,6 +154,12 @@ namespace Excel_SQLizer
                 {
                     result = SanitizeString(reader.GetString(readerIndex));
                 }
+                // Insert datetimes as a string
+                else if (fieldType.ToString().Equals("datetime"))
+                {
+                    string dateString = ((DateTime)reader.GetValue(readerIndex)).ToString();
+                    result = SanitizeString(dateString);
+                }
                 // Else return value as an object
                 else
                 {
