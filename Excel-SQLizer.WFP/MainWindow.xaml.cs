@@ -32,6 +32,10 @@ namespace Excel_SQLizer.WFP
         private bool _deleteMode;
         private bool _insertOrUpdateMode;
 
+        private string _fileName;
+
+        public bool OneScript { get; set; }
+
         public MainWindow()
         {
             //default insertOrUpdateMode
@@ -39,7 +43,11 @@ namespace Excel_SQLizer.WFP
             _insertMode         = false;
             _updateMode         = false;
             _deleteMode         = false;
+            OneScript           = true;
+
             InitializeComponent();
+            // After component is initialized, set up checkbox data context
+            oneScriptCheckBox.DataContext = this;
         }
 
         private void SelectFileClick(object sender, RoutedEventArgs e)
@@ -53,6 +61,9 @@ namespace Excel_SQLizer.WFP
             {
                 this.messages.Foreground = Brushes.Black;
                 this.messages.Text = "Working...";
+
+                // Save file name
+                _fileName = fileDialog.SafeFileName;
 
                 // Determine the selected file type - includes the '.'
                 string extension = System.IO.Path.GetExtension(fileDialog.FileName);
@@ -95,21 +106,49 @@ namespace Excel_SQLizer.WFP
 
         private void WriteSqlScripts(Dictionary<string, List<string>> sqlResults, string outPath)
         {
-            foreach (KeyValuePair<string, List<string>>kv in sqlResults)
+            // TODO: Refactor to be more DRY
+            if (OneScript)
             {
-                string filePath = $"{outPath}\\{GetScriptName(kv.Key)}";
-                // If the file already exists, delete it
+                // Remove spaces from file name
+                string name     = _fileName.Replace(' ', '_');
+                // Find the index of the extension so we can strip the extension
+                int extIdx      = name.LastIndexOf('.');
+                name            = name.Substring(0, extIdx);
+                string filePath = $"{outPath}\\{GetScriptName(name)}";
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);
                 }
-                // Create the file to write too
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
-                    // Each item in the list is a new line of SQL to write
-                    foreach (string statement in kv.Value)
+                    foreach (KeyValuePair<string, List<string>> kv in sqlResults)
                     {
-                        sw.WriteLine(statement);
+                        // Each item in the list is a new line of SQL to write
+                        foreach (string statement in kv.Value)
+                        {
+                            sw.WriteLine(statement);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (KeyValuePair<string, List<string>> kv in sqlResults)
+                {
+                    string filePath = $"{outPath}\\{GetScriptName(kv.Key)}";
+                    // If the file already exists, delete it
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                    // Create the file to write too
+                    using (StreamWriter sw = File.CreateText(filePath))
+                    {
+                        // Each item in the list is a new line of SQL to write
+                        foreach (string statement in kv.Value)
+                        {
+                            sw.WriteLine(statement);
+                        }
                     }
                 }
             }

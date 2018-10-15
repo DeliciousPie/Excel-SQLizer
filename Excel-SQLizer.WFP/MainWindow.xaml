@@ -45,5 +45,7 @@
                 HorizontalAlignment="Center" Click="SelectFileClick">
             Select Excel File
         </Button>
+        <CheckBox x:Name="oneScriptCheckBox" Content="One Script" HorizontalAlignment="Left" Margin="172,62,0,0" Grid.Row="3" VerticalAlignment="Top"
+                  IsChecked="{Binding OneScript}"/>
     </Grid>
 </Window>
